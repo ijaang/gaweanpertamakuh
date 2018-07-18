@@ -1,0 +1,9 @@
+<?php
+$host="192.168.1.113";
+$user="sa";
+$pass="Hello123";
+$db="aodb";//"airport_management_system";
+$connection=mssql_connect($host,$user,$pass) or die("Cannot connect to DB ".mssql_get_last_message());
+mssql_select_db($db) or die(mssql_get_last_message());
+?>
+

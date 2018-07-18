@@ -1,0 +1,44 @@
+<?php
+ include "lib/connect.php";
+ function get_client_ip(){
+  $ipaddress = '';
+  if (getenv('HTTP_CLIENT_IP')){
+    $ipaddress = getenv('HTTP_CLIENT_IP');
+  }else if(getenv('HTTP_X_FORWARDED_FOR')){
+    $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+  }else if(getenv('HTTP_X_FORWARDED')){
+    $ipaddress = getenv('HTTP_X_FORWARDED');
+  }else if(getenv('HTTP_FORWARDED_FOR')){
+    $ipaddress = getenv('HTTP_FORWARDED_FOR');
+  }else if(getenv('HTTP_FORWARDED')){
+    $ipaddress = getenv('HTTP_FORWARDED');
+  }else if(getenv('REMOTE_ADDR')){
+    $ipaddress = getenv('REMOTE_ADDR');
+  }else{
+    $ipaddress = 'UNKNOWN';
+  }
+    return $ipaddress;
+ }
+ //$ip=get_client_ip();
+ $ip="192.168.5.70"; 
+ $query ="SELECT a.LoginINX,c.FlightNo,c.Ket,c.STD,c.Destination,isnull(d.City,'') as City,isnull(b.Counter,'') as Counter,isnull(b.MRL,'')as Mrl from UserLogin a LEFT OUTER JOIN ";
+ $query.="Counter b on a.IPAddress=b.IPAddress LEFT OUTER JOIN Flight c on a.FlightNo=c.FlightNo LEFT OUTER JOIN City d on c.Destination=d.Name WHERE a.ipaddress='".$ip."' ";
+ //$query.="and LoginTime > DATEADD(minute,-10,GETDATE())";
+ //echo $query;
+ //break;
+ $result=mssql_query($query);
+ $row=mssql_fetch_assoc($result);
+ if($row){
+   $_flight=$row["FlightNo"];
+   $_ket=$row["Ket"];
+   $_std=substr($row["STD"],0,2).":".substr($row["STD"],2,2);;
+   $_des=$row["Destination"];
+   $_city=$row["City"];
+   $_ccid=$row["Counter"];
+   $_counter=$row["Mrl"];
+   include "checkin.php";
+ }else{
+   echo "kosong";
+ } 
+ include "lib/disconnect.php";
+?>

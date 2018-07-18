@@ -1,0 +1,106 @@
+B
+<?php
+ $img=$_POST["img"];
+ if(!$img){$img=$_GET["img"];}
+?>
+<html>
+ <head>
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+ </head>
+ <body style="background: #000000; overflow:hidden;">
+  <table style="width: 100%; height: 100%;" border="0" cellspacing="0" cellpadding="0">
+   <tr style="height: 100%; background:white;">
+    <td style="FONT-SIZE: 100px; width:100%; color:White;"><img src="<?php echo $img;?>" width="100%" height="100%"></td>
+   </tr>
+  </table>
+ </body>
+  <script type="text/javascript">
+  function sleep(milliseconds) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+      if ((new Date().getTime() - start) > milliseconds){
+       break;
+      }
+    }
+  }
+  repeatAjax();
+  function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  };
+  function repeatAjax(){
+    var page=getUrlParameter('page');
+    if(!page){page=$("#xpage").val();}
+    var row=getUrlParameter('row');
+    if(!row){row=$("#xrow").val();}
+    jQuery.ajax({
+      type: "POST",
+      url: "loaddata.php?page="+page+"&row="+row,
+      dataType: "json",
+      success: function(resp) {
+        //alert(resp.length);
+        if(resp.length>0){
+          for(var i=0;i<resp.length;i++){
+            var data=resp[i];
+            var logo = document.getElementById("logo"+i);
+            var air=data.flight_no.substr(0,2);
+            logo.innerHTML="<img src='images/"+air+".jpg' style='width: 90%; height: 70%;'>";
+            var flight = document.getElementById("flight"+i);
+            flight.innerHTML=data.flight_no;
+            var xto = document.getElementById("to"+i);
+            xto.innerHTML=data.Name;
+            var std = document.getElementById("std"+i);
+            std.innerHTML=data.sta_std;
+            var etd = document.getElementById("etd"+i);
+            etd.innerHTML=data.ata_atd;
+            var counter = document.getElementById("counter"+i);
+            var cc=data.counter.split(" ");
+            var pjg=cc.length;
+            var ccc=cc[0];
+            //alert(pjg);
+            if(pjg>2){
+   ccc=ccc+"-"+cc[pjg-1];
+            }else if(pjg>0 && pjg<=2){
+              ccc=ccc+","+cc[pjg-1];
+            }
+          }
+          for(var x=i;x<9;x++){
+            var logo = document.getElementById("logo"+x);
+            logo.innerHTML="";
+            var flight = document.getElementById("flight"+x);
+            flight.innerHTML="";
+            var xto = document.getElementById("to"+x);
+            xto.innerHTML="";
+            var std = document.getElementById("std"+x);
+            std.innerHTML="";
+            var etd = document.getElementById("etd"+x);
+            etd.innerHTML="";
+            var counter = document.getElementById("counter"+x);
+            counter.innerHTML="";
+            var gate = document.getElementById("gate"+x);
+            gate.innerHTML="";          var status = document.getElementById("status"+x);
+            status.innerHTML="";
+            status.className="grey";
+          }
+        }else{
+          var hsl=page % 2;
+          //alert(hsl);
+          var ch="";
+          if(hsl==0){
+            ch="1";
+          }else{
+            ch="2";
+          }
+          window.location.href="channel/channel.php?page="+page+"&row="+row+"&channel="+ch+"&function=departure";
+        }
+      },
+      complete: function() {
+        setTimeout(repeatAjax,30000); //After completion of request, time to redo it after a second
+     }
+  });
+ }
+</script>
+ 
+</html>
